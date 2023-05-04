@@ -6,10 +6,12 @@ public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public float jumpForce = 7f;
+    private float moveInput;
 
     private Rigidbody2D rb;
     private Animator anim;
     private bool isGrounded;
+    
 
     void Start()
     {
@@ -19,14 +21,40 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        float moveInput = Input.GetAxisRaw("Horizontal");
+        moveInput = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
 
         //  Movements   
         Jump();
         
-        //  Player states
-        //      Running
+        //  Animation
+        UpdateAnimationState();
+        
+
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+        }
+    }
+    
+    //  Movement Methods
+    void Jump()
+    {
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+            isGrounded = false;
+        }
+    }
+    
+    
+    //  Update Animation State
+    private void UpdateAnimationState()
+    {
         if (moveInput > 0f)
         {
             anim.SetBool("Running", true);
@@ -39,25 +67,6 @@ public class PlayerController : MonoBehaviour
         {
             anim.SetBool("Running", false);
         }
-
-
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
-    }
-    
-    void Jump()
-    {
-        if (Input.GetButtonDown("Jump") && isGrounded)
-        {
-            rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
-            isGrounded = false;
-        }
-    }
-    
 }
