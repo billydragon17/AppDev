@@ -4,12 +4,16 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    //  Floats
     public float moveSpeed = 5f;
     public float jumpForce = 7f;
     private float moveInput;
 
+    //  Unity References
     private Rigidbody2D rb;
     private Animator anim;
+    private SpriteRenderer sprite;
+
     private bool isGrounded;
     
 
@@ -17,6 +21,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        sprite = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -58,10 +63,12 @@ public class PlayerController : MonoBehaviour
         if (moveInput > 0f)
         {
             anim.SetBool("Running", true);
+            sprite.flipX = false;
         }
         else if (moveInput < 0f)
         {
             anim.SetBool("Running", true);
+            sprite.flipX = true;
         }
         else
         {
