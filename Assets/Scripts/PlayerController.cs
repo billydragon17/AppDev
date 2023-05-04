@@ -29,7 +29,15 @@ public class PlayerController : MonoBehaviour
         //      Running
         if (moveInput > 0f)
         {
-            
+            anim.SetBool("Running", true);
+        }
+        else if (moveInput < 0f)
+        {
+            anim.SetBool("Running", true);
+        }
+        else
+        {
+            anim.SetBool("Running", false);
         }
 
 
