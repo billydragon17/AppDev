@@ -9,6 +9,9 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 7f;
     private float moveInput;
 
+    //  Movemement state
+    private enum MovementState {idle, running, jumping, falling};
+
     //  Unity References
     private Rigidbody2D rb;
     private Animator anim;
@@ -60,20 +63,34 @@ public class PlayerController : MonoBehaviour
     //  Update Animation State
     private void UpdateAnimationState()
     {
+        MovementState state;
+
+        //  running
         if (moveInput > 0f)
         {
-            anim.SetBool("Running", true);
+            state = MovementState.running;
             sprite.flipX = false;
         }
         else if (moveInput < 0f)
         {
-            anim.SetBool("Running", true);
+            state = MovementState.running;
             sprite.flipX = true;
         }
         else
         {
-            anim.SetBool("Running", false);
+            state = MovementState.idle;
         }
+
+        //  jumping & falling
+        if (rb.velocity.y > 0.1f)
+        {
+            state = MovementState.jumping;
+        }
+        else if (rb.velocity.y < -0.1f)
+        {
+            state = MovementState.falling;
+        }
+        anim.SetInteger("State", (int) state);
     }
 
 }
