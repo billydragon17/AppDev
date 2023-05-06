@@ -16,24 +16,26 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
     private SpriteRenderer sprite;
+    private BoxCollider2D coll;
 
-    private bool isGrounded;
+    [SerializeField] private LayerMask jumpableGround;
+
+    //private bool isGrounded;
     
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        coll = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
-        moveInput = Input.GetAxisRaw("Horizontal");
-        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
-
         //  Movements   
         Jump();
+        Moving();
         
         //  Animation
         UpdateAnimationState();
@@ -41,22 +43,30 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
+    //  Check for ground
+    private bool IsGrounded()
     {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
+        return Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.1f, jumpableGround);
     }
+    
     
     //  Movement Methods
     void Jump()
     {
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
-            isGrounded = false;
+            
         }
+
+        //  Double Jump
+        //if (Input.GetButtonDown("Jump") && )
+    }
+
+    void Moving()
+    {
+         moveInput = Input.GetAxisRaw("Horizontal");
+        rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
     }
     
     
