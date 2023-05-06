@@ -7,10 +7,14 @@ public class PlayerController : MonoBehaviour
     //  Floats
     public float moveSpeed = 5f;
     public float jumpForce = 7f;
+    public float doubleJumpForce;
     private float moveInput;
 
+    //  Bools
+    private bool doubleJump;
+
     //  Movemement state
-    private enum MovementState {idle, running, jumping, falling};
+    private enum MovementState {idle, running, jumping, falling, doubleJumping};
 
     //  Unity References
     private Rigidbody2D rb;
@@ -20,7 +24,6 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private LayerMask jumpableGround;
 
-    //private bool isGrounded;
     
 
     void Start()
@@ -46,6 +49,11 @@ public class PlayerController : MonoBehaviour
     //  Check for ground
     private bool IsGrounded()
     {
+        //  Preventing double jump while on ground
+        if (!Input.GetButtonDown("Jump"))
+        {
+            doubleJump = false;
+        }
         return Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.1f, jumpableGround);
     }
     
@@ -56,11 +64,14 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
-            
+            doubleJump = true;
         }
-
-        //  Double Jump
-        //if (Input.GetButtonDown("Jump") && )
+            //  Double Jump
+        else if (Input.GetButtonDown("Jump") && doubleJump)
+        {
+            rb.velocity = Vector2.up * doubleJumpForce;
+            doubleJump = false;
+        }
     }
 
     void Moving()
@@ -91,7 +102,7 @@ public class PlayerController : MonoBehaviour
             state = MovementState.idle;
         }
 
-        //  jumping & falling
+        // jumping & falling
         if (rb.velocity.y > 0.1f)
         {
             state = MovementState.jumping;
