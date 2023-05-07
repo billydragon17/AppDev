@@ -65,6 +65,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
             doubleJump = true;
+            anim.SetInteger("State", 2);
         }
             //  Double Jump
         else if (Input.GetButtonDown("Jump") && doubleJump)
@@ -76,7 +77,7 @@ public class PlayerController : MonoBehaviour
 
     void Moving()
     {
-         moveInput = Input.GetAxisRaw("Horizontal");
+        moveInput = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
     }
     
@@ -103,11 +104,15 @@ public class PlayerController : MonoBehaviour
         }
 
         // jumping & falling
-        if (rb.velocity.y > 0.1f)
+        if (rb.velocity.y > 0.1f && doubleJump == true)
         {
             state = MovementState.jumping;
         }
-        else if (rb.velocity.y < -0.1f)
+        else if (rb.velocity.y > 0.1f && doubleJump == false)
+        {
+            state = MovementState.doubleJumping;
+        }
+        if (rb.velocity.y < -0.1f)
         {
             state = MovementState.falling;
         }
