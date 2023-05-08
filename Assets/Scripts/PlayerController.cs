@@ -9,12 +9,19 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 7f;
     public float doubleJumpForce;
     private float moveInput;
+    public float dashingPower = 10f;   
+    public float dashingTime = 0.2f;
+    private float dashingCooldown = 1f;
 
     //  Bools
     private bool doubleJump;
+    private bool canDash = true;
+    private bool isDashing;
+    private bool isFacingRight;
+    
 
     //  Movemement state
-    private enum MovementState {idle, running, jumping, falling, doubleJumping};
+    private enum MovementState {idle, running, jumping, falling, doubleJumping, dashing};
 
     //  Unity References
     private Rigidbody2D rb;
@@ -23,8 +30,9 @@ public class PlayerController : MonoBehaviour
     private BoxCollider2D coll;
 
     [SerializeField] private LayerMask jumpableGround;
+    [SerializeField] private TrailRenderer tr;
 
-    
+    /*  Update methods  */
 
     void Start()
     {
@@ -36,14 +44,21 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (isDashing)
+        {
+            return;
+        }
+        
         //  Movements   
         Jump();
         Moving();
+        StartCoroutine(Dash());
         
         //  Animation
         UpdateAnimationState();
         
-
+        //  others
+        Flip();
     }
 
     //  Check for ground
@@ -58,7 +73,7 @@ public class PlayerController : MonoBehaviour
     }
     
     
-    //  Movement Methods
+    /*  Movement Methods    */
     void Jump()
     {
         if (Input.GetButtonDown("Jump") && IsGrounded())
@@ -80,27 +95,46 @@ public class PlayerController : MonoBehaviour
         moveInput = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
     }
+
+    private IEnumerator Dash()
+    {
+        if (Input.GetKeyDown(KeyCode.O) && canDash)
+        {
+            canDash = false;        //prevents dashing while already dashing
+            isDashing = true;
+            float originalGravity = rb.gravityScale;        // turning off gravity while dashing
+            rb.gravityScale = 0f;
+            rb.velocity = new Vector2(transform.localScale.x * dashingPower, 0f);       // the dash
+            tr.emitting = true;     // turn on trail
+            yield return new WaitForSeconds(dashingTime);       // stop dashing after <dashingTime>
+            tr.emitting = false;    // turn off trail
+            rb.gravityScale = originalGravity;      // turn gravity back on
+            isDashing = false;      
+            yield return new WaitForSeconds(dashingCooldown);       // time until can dash again
+            canDash = true;
+        }
+    }
     
     
-    //  Update Animation State
+    /*  Update Animation State  */
     private void UpdateAnimationState()
     {
         MovementState state;
 
         //  running
-        if (moveInput > 0f)
+        if (moveInput != 0f)
         {
             state = MovementState.running;
-            sprite.flipX = false;
-        }
-        else if (moveInput < 0f)
-        {
-            state = MovementState.running;
-            sprite.flipX = true;
         }
         else
         {
             state = MovementState.idle;
+        }
+
+        // dashing
+        if (isDashing == true)
+        {
+            state = MovementState.dashing;
         }
 
         // jumping & falling
@@ -119,4 +153,15 @@ public class PlayerController : MonoBehaviour
         anim.SetInteger("State", (int) state);
     }
 
+    /*  Other Methods   */
+    private void Flip()
+    {
+        if (isFacingRight && moveInput > 0f || !isFacingRight && moveInput < 0f)
+        {
+            Vector3 localScale = transform.localScale;
+            isFacingRight = !isFacingRight;
+            localScale.x *= -1f;
+            transform.localScale = localScale;
+        }
+    }
 }
