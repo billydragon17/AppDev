@@ -275,6 +275,7 @@ MonoBehaviour:
   jumpForce: 20
   doubleJumpForce: 15
   dashingPower: 10
+  dashingTime: 0.5
   jumpableGround:
     serializedVersion: 2
     m_Bits: 64
@@ -340,7 +341,7 @@ TrailRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Time: 0.5
   m_Parameters:
     serializedVersion: 3
