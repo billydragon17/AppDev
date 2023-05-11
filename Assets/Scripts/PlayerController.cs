@@ -12,16 +12,19 @@ public class PlayerController : MonoBehaviour
     public float dashingPower = 10f;   
     public float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
+    private float attackTime = 0.5f;
+    private float attackCooldown = 0.7f;
 
     //  Bools
     private bool doubleJump;
     private bool canDash = true;
     private bool isDashing;
     private bool isFacingRight;
-    
+    private bool canAttack = true;
+    private bool isAttacking;
 
     //  Movemement state
-    private enum MovementState {idle, running, jumping, falling, doubleJumping, dashing};
+    private enum MovementState {idle, running, jumping, falling, doubleJumping, dashing, attacking};
 
     //  Unity References
     private Rigidbody2D rb;
@@ -57,6 +60,9 @@ public class PlayerController : MonoBehaviour
         //  Animation
         UpdateAnimationState();
         
+        //  Attacks
+        NormalAttack();
+
         //  others
         Flip();
     }
@@ -80,7 +86,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
             doubleJump = true;
-            anim.SetInteger("State", 2);
+            //anim.SetInteger("State", 2);
         }
             //  Double Jump
         else if (Input.GetButtonDown("Jump") && doubleJump)
@@ -115,6 +121,19 @@ public class PlayerController : MonoBehaviour
         }
     }
     
+    /*  Attack Methods  */
+    private IEnumerator NormalAttack()
+    {
+        if (Input.GetKeyDown(KeyCode.J) && canAttack)
+        {
+            canAttack = false;
+            isAttacking = true;
+            yield return new WaitForSeconds(attackTime);
+            isAttacking = false;
+            yield return new WaitForSeconds(attackCooldown);
+            canAttack = true;
+        }
+    }
     
     /*  Update Animation State  */
     private void UpdateAnimationState()
@@ -150,6 +169,13 @@ public class PlayerController : MonoBehaviour
         {
             state = MovementState.falling;
         }
+
+        // attacks
+        if (isAttacking == true)
+        {
+            state = MovementState.attacking;
+        }
+
         anim.SetInteger("State", (int) state);
     }
 
