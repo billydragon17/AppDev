@@ -12,11 +12,11 @@ public class PlayerController : MonoBehaviour
     public float dashingPower = 10f;   
     public float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
-    private float attackTime = 0.5f;
-    private float attackCooldown = 0.7f;
+    [SerializeField] private float attackTime = 0.7f;
+    private float attackCooldown = 0.5f;
 
     //  Bools
-    private bool doubleJump;
+    private bool canDoubleJump;
     private bool canDash = true;
     private bool isDashing;
     private bool isFacingRight;
@@ -51,17 +51,21 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        
+
+        if (isAttacking)
+        {
+            return;
+        }
         //  Movements   
         Jump();
         Moving();
         StartCoroutine(Dash());
-        
+
+        //  Attacks
+        StartCoroutine(NormalAttack());
+
         //  Animation
         UpdateAnimationState();
-        
-        //  Attacks
-        NormalAttack();
 
         //  others
         Flip();
@@ -73,7 +77,7 @@ public class PlayerController : MonoBehaviour
         //  Preventing double jump while on ground
         if (!Input.GetButtonDown("Jump"))
         {
-            doubleJump = false;
+            canDoubleJump = false;
         }
         return Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.1f, jumpableGround);
     }
@@ -85,14 +89,13 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump") && IsGrounded())
         {
             rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
-            doubleJump = true;
-            //anim.SetInteger("State", 2);
+            canDoubleJump = true;
         }
             //  Double Jump
-        else if (Input.GetButtonDown("Jump") && doubleJump)
+        else if (Input.GetButtonDown("Jump") && canDoubleJump)
         {
             rb.velocity = Vector2.up * doubleJumpForce;
-            doubleJump = false;
+            canDoubleJump = false;
         }
     }
 
@@ -128,6 +131,7 @@ public class PlayerController : MonoBehaviour
         {
             canAttack = false;
             isAttacking = true;
+            //Debug.Log(isAttacking);
             yield return new WaitForSeconds(attackTime);
             isAttacking = false;
             yield return new WaitForSeconds(attackCooldown);
@@ -150,18 +154,24 @@ public class PlayerController : MonoBehaviour
             state = MovementState.idle;
         }
 
+        // attacks
+        if (isAttacking == true)
+        {
+            state = MovementState.attacking;
+        }
+
         // dashing
         if (isDashing == true)
         {
-            state = MovementState.dashing;
+            state = MovementState.dashing; 
         }
 
         // jumping & falling
-        if (rb.velocity.y > 0.1f && doubleJump == true)
+        if (rb.velocity.y > 0.1f && canDoubleJump == true)
         {
             state = MovementState.jumping;
         }
-        else if (rb.velocity.y > 0.1f && doubleJump == false)
+        else if (rb.velocity.y > 0.1f && canDoubleJump == false)
         {
             state = MovementState.doubleJumping;
         }
@@ -170,11 +180,7 @@ public class PlayerController : MonoBehaviour
             state = MovementState.falling;
         }
 
-        // attacks
-        if (isAttacking == true)
-        {
-            state = MovementState.attacking;
-        }
+        Debug.Log("Current state " + state);
 
         anim.SetInteger("State", (int) state);
     }
