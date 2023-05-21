@@ -14,6 +14,10 @@ public class PlayerController : MonoBehaviour
     private float dashingCooldown = 1f;
     [SerializeField] private float attackTime = 0.7f;
     private float attackCooldown = 0.5f;
+    public float attackRange = 0.5f;
+
+    //Ints
+    [SerializeField] private int attackDamage = 40;
 
     //  Bools
     private bool canDoubleJump;
@@ -31,7 +35,9 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private SpriteRenderer sprite;
     private BoxCollider2D coll;
-
+    public Transform attackPoint;
+    
+    public LayerMask enemyLayers;
     [SerializeField] private LayerMask jumpableGround;
     [SerializeField] private TrailRenderer tr;
 
@@ -132,11 +138,28 @@ public class PlayerController : MonoBehaviour
             canAttack = false;
             isAttacking = true;
             //Debug.Log(isAttacking);
+            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+            
+            foreach (Collider2D enemy in hitEnemies)
+            {
+                enemy.GetComponent<EnemyController>().TakeDamage(attackDamage);
+            }
+
             yield return new WaitForSeconds(attackTime);
             isAttacking = false;
             yield return new WaitForSeconds(attackCooldown);
             canAttack = true;
         }
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null)
+        {
+            return;
+        }
+
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
     
     /*  Update Animation State  */
