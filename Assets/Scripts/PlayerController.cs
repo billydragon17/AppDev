@@ -26,9 +26,10 @@ public class PlayerController : MonoBehaviour
     private bool isFacingRight;
     private bool canAttack = true;
     private bool isAttacking;
+    private bool isDoubleJumping;
 
     //  Movemement state
-    private enum MovementState {idle, running, jumping, falling, doubleJumping, dashing, attacking};
+    private enum MovementState {idle, running, jumping, falling, doubleJumping, dashing, attacking, airAttacking};
 
     //  Unity References
     private Rigidbody2D rb;
@@ -58,7 +59,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (isAttacking)
+        if (isAttacking && IsGrounded())
         {
             return;
         }
@@ -83,6 +84,7 @@ public class PlayerController : MonoBehaviour
         //  Preventing double jump while on ground
         if (!Input.GetButtonDown("Jump"))
         {
+            isDoubleJumping = false;
             canDoubleJump = false;
         }
         return Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.1f, jumpableGround);
@@ -101,6 +103,7 @@ public class PlayerController : MonoBehaviour
         else if (Input.GetButtonDown("Jump") && canDoubleJump)
         {
             rb.velocity = Vector2.up * doubleJumpForce;
+            isDoubleJumping = true;
             canDoubleJump = false;
         }
     }
@@ -152,7 +155,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()     // show atk range
     {
         if (attackPoint == null)
         {
@@ -178,9 +181,13 @@ public class PlayerController : MonoBehaviour
         }
 
         // attacks
-        if (isAttacking == true)
+        if (isAttacking == true && IsGrounded())
         {
             state = MovementState.attacking;
+        }
+        else if (isAttacking == true && !IsGrounded())
+        {
+            state = MovementState.airAttacking;
         }
 
         // dashing
@@ -194,7 +201,7 @@ public class PlayerController : MonoBehaviour
         {
             state = MovementState.jumping;
         }
-        else if (rb.velocity.y > 0.1f && canDoubleJump == false)
+        else if (rb.velocity.y > 0.1f && isDoubleJumping == true)
         {
             state = MovementState.doubleJumping;
         }
@@ -206,6 +213,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Current state " + state);
 
         anim.SetInteger("State", (int) state);
+
     }
 
     /*  Other Methods   */
