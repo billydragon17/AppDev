@@ -270,6 +270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9644f10ddd18d14f81d1878a2823f02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 2117720}
   maxHealth: 100
 --- !u!95 &2117720
 Animator:
