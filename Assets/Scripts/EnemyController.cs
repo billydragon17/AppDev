@@ -12,7 +12,7 @@ public class EnemyController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        currentHealth = maxHealth;
+        currentHealth = maxHealth;      // set health
     }
 
     // Update is called once per frame
@@ -42,5 +42,10 @@ public class EnemyController : MonoBehaviour
         
         GetComponent<Collider2D>().enabled = false;      // disable collider
         this.enabled = false;                           // disable enemy script
+    }
+
+    public void DestroyObject()
+    {
+        Destroy(gameObject);    //  INHERITED FROM MONOBEHAVIOUR
     }
 }

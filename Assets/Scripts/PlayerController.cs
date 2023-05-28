@@ -91,7 +91,7 @@ public class PlayerController : MonoBehaviour
     }
     
     
-    /*  Movement Methods    */
+    /*  Movement Methods  */
     void Jump()
     {
         if (Input.GetButtonDown("Jump") && IsGrounded())
@@ -145,7 +145,7 @@ public class PlayerController : MonoBehaviour
             
             foreach (Collider2D enemy in hitEnemies)
             {
-                enemy.GetComponent<EnemyController>().TakeDamage(attackDamage);
+                enemy.GetComponent<EnemyController>().TakeDamage(attackDamage);     // COMMAND PATTERN
             }
 
             yield return new WaitForSeconds(attackTime);
@@ -169,18 +169,32 @@ public class PlayerController : MonoBehaviour
     private void UpdateAnimationState()
     {
         MovementState state;
-
+        //      change to switch cases      //
         //  running
-        if (moveInput != 0f)
+        switch (moveInput)
         {
-            state = MovementState.running;
+            case 0f:
+                state = MovementState.idle;
+                break;
+            default:
+                state = MovementState.running;
+                break;
         }
-        else
-        {
-            state = MovementState.idle;
-        }
+
 
         // attacks
+
+        // switch (isAttacking)
+        // {
+        //     case (true && IsGrounded()):
+        //         state = MovementState.attacking;
+        //         break;
+        
+        //     case (true && !IsGrounded()):
+        //         state = MovementState.airAttacking;
+        //         break;
+        // }
+
         if (isAttacking == true && IsGrounded())
         {
             state = MovementState.attacking;
@@ -205,8 +219,10 @@ public class PlayerController : MonoBehaviour
         {
             state = MovementState.doubleJumping;
         }
+
         if (rb.velocity.y < -0.1f)
         {
+            // if atk button pressed, change to down atk anim
             state = MovementState.falling;
         }
 
