@@ -13,11 +13,14 @@ public class PlayerController : MonoBehaviour
     public float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
     [SerializeField] private float attackTime = 0.7f;
-    private float attackCooldown = 0.5f;
+    [SerializeField] private float attackCooldown = 0.5f;
     public float attackRange = 0.5f;
 
     //Ints
     [SerializeField] private int attackDamage = 40;
+    [SerializeField] private int maxHealth = 100;
+    private int currentHealth;
+    public int damageTaken;
 
     //  Bools
     private bool canDoubleJump;
@@ -42,6 +45,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask jumpableGround;
     [SerializeField] private TrailRenderer tr;
 
+    //  Other References
+    [SerializeField] private HealthBar healthBar;
+    public EnemyController enemy;
+
+
     /*  Update methods  */
 
     void Start()
@@ -50,6 +58,9 @@ public class PlayerController : MonoBehaviour
         coll = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
+
+        currentHealth = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
     }
 
     void Update()
@@ -182,19 +193,6 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        // attacks
-
-        // switch (isAttacking)
-        // {
-        //     case (true && IsGrounded()):
-        //         state = MovementState.attacking;
-        //         break;
-        
-        //     case (true && !IsGrounded()):
-        //         state = MovementState.airAttacking;
-        //         break;
-        // }
-
         if (isAttacking == true && IsGrounded())
         {
             state = MovementState.attacking;
@@ -211,11 +209,11 @@ public class PlayerController : MonoBehaviour
         }
 
         // jumping & falling
-        if (rb.velocity.y > 0.1f && canDoubleJump == true)
+        if (rb.velocity.y > 0.1f && canDoubleJump == true)      // jumping
         {
             state = MovementState.jumping;
         }
-        else if (rb.velocity.y > 0.1f && isDoubleJumping == true)
+        else if (rb.velocity.y > 0.1f && isDoubleJumping == true)       // double-jumping
         {
             state = MovementState.doubleJumping;
         }
@@ -242,5 +240,22 @@ public class PlayerController : MonoBehaviour
             localScale.x *= -1f;
             transform.localScale = localScale;
         }
+    }
+
+    private void TakeDamage(int amount)     // damage when touch enemy
+    {
+        currentHealth -= amount;
+
+        healthBar.SetHealth(currentHealth);
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Enemy")
+        {
+            TakeDamage(10);
+            Debug.Log("Player took damage");
+        }
+        
     }
 }

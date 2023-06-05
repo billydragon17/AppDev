@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 8251706817322174304}
   m_Layer: 7
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,7 +108,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &8251706817322174315
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -149,6 +149,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animator: {fileID: 8251706817322174304}
   maxHealth: 100
+  damage: 20
 --- !u!95 &8251706817322174304
 Animator:
   serializedVersion: 5

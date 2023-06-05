@@ -8,6 +8,7 @@ public class EnemyController : MonoBehaviour
 
     [SerializeField] private int maxHealth = 100;
     int currentHealth;
+    //public int damage = 20;
 
     // Start is called before the first frame update
     void Start()
