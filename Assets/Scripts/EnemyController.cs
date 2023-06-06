@@ -6,9 +6,9 @@ public class EnemyController : MonoBehaviour
 {
     public Animator animator;
 
-    [SerializeField] private int maxHealth = 100;
-    int currentHealth;
-    //public int damage = 20;
+    [SerializeField] private float maxHealth = 100;
+    float currentHealth;
+    public float damage = 20f;
 
     // Start is called before the first frame update
     void Start()
@@ -22,7 +22,7 @@ public class EnemyController : MonoBehaviour
         
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         currentHealth -= damage;
 

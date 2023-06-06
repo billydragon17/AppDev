@@ -17,10 +17,10 @@ public class PlayerController : MonoBehaviour
     public float attackRange = 0.5f;
 
     //Ints
-    [SerializeField] private int attackDamage = 40;
-    [SerializeField] private int maxHealth = 100;
-    private int currentHealth;
-    public int damageTaken;
+    [SerializeField] private float attackDamage = 40;
+    [SerializeField] private float maxHealth = 100;
+    private float currentHealth;
+    //public int damageTaken;
 
     //  Bools
     private bool canDoubleJump;
@@ -47,7 +47,9 @@ public class PlayerController : MonoBehaviour
 
     //  Other References
     [SerializeField] private HealthBar healthBar;
-    public EnemyController enemy;
+    //public EnemyController enemy;
+
+    public float CurrentDmg;
 
 
     /*  Update methods  */
@@ -242,7 +244,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void TakeDamage(int amount)     // damage when touch enemy
+    private void TakeDamage(float amount)     // damage when touch enemy
     {
         currentHealth -= amount;
 
@@ -253,7 +255,8 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Enemy")
         {
-            TakeDamage(10);
+            CurrentDmg = collision.gameObject.GetComponent<EnemyController>().damage;
+            TakeDamage(CurrentDmg);
             Debug.Log("Player took damage");
         }
         
