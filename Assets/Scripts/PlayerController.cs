@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     private bool canAttack = true;
     private bool isAttacking;
     private bool isDoubleJumping;
+    public bool isDead;
 
     //  Movemement state
     private enum MovementState {idle, running, jumping, falling, doubleJumping, dashing, attacking, airAttacking};
@@ -47,7 +48,7 @@ public class PlayerController : MonoBehaviour
 
     //  Other References
     [SerializeField] private HealthBar healthBar;
-    //public EnemyController enemy;
+    public LogicManager logic;
 
     public float CurrentDmg;
 
@@ -60,9 +61,13 @@ public class PlayerController : MonoBehaviour
         coll = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
         sprite = GetComponent<SpriteRenderer>();
+        
 
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
+        isDead = false;
+
+        logic = GameObject.FindGameObjectWithTag("Logic").GetComponent<LogicManager>();
     }
 
     void Update()
@@ -73,6 +78,11 @@ public class PlayerController : MonoBehaviour
         }
 
         if (isAttacking && IsGrounded())
+        {
+            return;
+        }
+
+        if (isDead)
         {
             return;
         }
@@ -249,6 +259,14 @@ public class PlayerController : MonoBehaviour
         currentHealth -= amount;
 
         healthBar.SetHealth(currentHealth);
+
+        anim.SetTrigger("Hurt");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+            logic.gameOver();
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -260,5 +278,12 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Player took damage");
         }
         
+    }
+
+    private void Die()
+    {
+        rb.bodyType = RigidbodyType2D.Static;
+        anim.SetBool("IsDead", true);
+        isDead = true;
     }
 }
